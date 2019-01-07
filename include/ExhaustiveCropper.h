@@ -6,5 +6,5 @@ class ExhaustiveCropper : public ImageCropper {
 public:
   ExhaustiveCropper(void);
   ~ExhaustiveCropper(void);
-  virtual void setUp(Mat img) override;
+  virtual void setUp(Mat img) override; // binded in run-time
 };

@@ -54,9 +54,8 @@ public:
   void collectResult();
   void collectResult(const PCA &pca, bool with_fea_vec);
   void calcClusHist();
-  bool match(const vector<bool>
-                 &); // if certain pattern are matched by image's histogram
-  Rect matchArea(const vector<bool> &); // minRect cover all rects from certain
+  bool match(const vector<bool> &gamecard); // if certain pattern are matched by image's histogram
+  Rect matchArea(const vector<bool> &gamecard); // minRect cover all rects from certain
                                         // clusters of kNN result
   vector<vector<Result>> getMatchedResults(
       const vector<bool>

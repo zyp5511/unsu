@@ -28,7 +28,19 @@ public:
   vector<float> orivec; // should be private
   Result res;
   Mat img;
-
+    Size winSize = Size(96,128);
+    Size blockSize = Size(16,16);
+    Size blockStride = Size (8,8);
+    Size cellSize = Size(8,8);
+    int nbins = 9;
+    int derivAperture = 1;
+    double winSigma = 4.0;
+    int histogramNormType = 0;
+    double L2HysThreshold = 2.0000000000000001e-01;
+    int gammaCorrection = 0;
+    int nlevels = 1;
+    Size winStride = Size(0,0);
+    HOGDescriptor hog = HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,histogramNormType,L2HysThreshold,gammaCorrection,nlevels);
 private:
   //    int category=-1;
   //    float score=0;;

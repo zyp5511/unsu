@@ -12,7 +12,7 @@
 #include <iostream>
 #include "ImageCropper.h"
 #include "Feature.h"
-
+#include <opencv2/opencv.hpp>
 using namespace std;
 using namespace cv;
 
@@ -20,6 +20,7 @@ class RandomCropper : public ImageCropper {
 protected:
   int patchesPerImage;
   Mat feavec;
+  Mat feavec_cv;
   vector<int> seperators;
   bool toprymaid;
 
