@@ -21,6 +21,7 @@ void ExhaustiveCropper::setUp(Mat img) {
   double scale0 = 1.2;
   int levels = 0;
 
+  // creeate all scaled level information
   for (levels = 0; levels < 40; levels++) {
     level_scale.push_back(scale);
     if (cvRound(img.cols / scale) < patch_c ||

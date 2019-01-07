@@ -20,6 +20,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#include <opencv2/core/eigen.hpp>
 
 #include "ExhaustiveCropper.h"
 #include "RandomCropper.h"
@@ -98,6 +99,8 @@ int main(int argc, const char *argv[]) {
   po::options_description casdesc("Cascading classifier options");
   po::options_description distdesc("Distributed Computing options");
   po::options_description voronoidesc("kmeans class purification options");
+  //input setting
+
 
   desc.add_options()("help", "produce help message")(
       "config,K", po::value<string>(&config), "configuration file")(
@@ -312,7 +315,16 @@ int main(int argc, const char *argv[]) {
     auto fl = FeatureLoader();
     auto fea = fl.loadTab(fsfn);
     vector<int> category(fea.rows);
+
+
+    cout << k << " and "<< fea.rows << " and "<<fea.cols << endl;
+    // this function is not as same as open CV default K mean
+    // so fea is the input, category is the output.
+    // K and TermCriteria are also input
     fp.kmean(fea, category, k, TermCriteria(mode, mi, ep));
+
+
+    cout << k << " and "<< category.size()<< endl;
 
     ofstream fout(indfn);
     for (auto i : category) {
@@ -323,20 +335,32 @@ int main(int argc, const char *argv[]) {
     auto fl = FeatureLoader();
     MatrixXf fea;
     fl.loadTab2Eigen(fsfn, fea);
-    auto pca = FeaturePCA(fea, 0.95);
+    Mat fea_pca;
+    eigen2cv(fea,fea_pca);
+    //0.95 retained variance.
+    //PCA pca(fea, cv::Mat(), PCA::DATA_AS_ROW, 0.95);
+    //auto pca = FeaturePCA(fea, 0.95);
+    auto pca = FeaturePCA(fea_pca, 0.95);
     cout << "there are " << pca.el.size() << " components in PCA\n";
+    //cout << "there are " << pca.eigenvalues.size() << " components in PCA\n";
     auto a = pca.getCVPCA();
-    MatrixXf shortfea;
+    //MatrixXf shortfea;
+    Mat shortfea;
+    //pca.projectZeroMean(fea, shortfea);
+    pca.projectZeroMean(fea_pca, shortfea);
 
-    pca.projectZeroMean(fea, shortfea);
     FileStorage fs(pcafn, FileStorage::WRITE);
-    fs << "mean" << a.mean;
-    fs << "eigenvalues" << a.eigenvalues;
-    fs << "eigenvectors" << a.eigenvectors;
+    fs << "mean" << pca.mean;
+    fs << "eigenvalues" << pca.el;
+    fs << "eigenvectors" << pca.ev;
     fs.release();
     cout << "eigenvalue written in " << pcafn << endl;
     auto fw = FeatureWriter();
-    fw.saveEigen2Tab(vecoutfn, shortfea);
+    // added
+    MatrixXf shfea;
+    cv2eigen(shortfea,shfea);
+    // *****
+    fw.saveEigen2Tab(vecoutfn, shfea);
   } else if (oper == "randomcrop") {
     // set up patch cropper
     string seperator_fn = vecoutfn;
@@ -354,10 +378,11 @@ int main(int argc, const char *argv[]) {
     }
     nc.setSize(h, w);
     nc.collectSrcDir(srcfolder);
+    // all image patches and features are created
     cout << "Patches created!" << endl;
     nc.exportFeatures(fsfn);
     nc.exportPatches(desfolder);
-    nc.exportSeperators(seperator_fn);
+    nc.exportSeperators(seperator_fn); // typo, should be separators
   } else if (oper == "latent") {
     // set up patch cropper
     shared_ptr<LatentDetector> kd;
@@ -535,13 +560,15 @@ int main(int argc, const char *argv[]) {
     // and rule applying
     vector<bool> coregc = vector<bool>();
     if (vm.count("corecard")) {
+        cout << "CORECARD." << endl;
       coregc = buildGameCard(coregcfn, k);
     }
 
     // load geometric transfrom rules
     LCTransformSet ts;
     if (vm.count("transform")) {
-      ts = LCTransformSet(k, transfn);
+        cout << "Transform." << endl;
+        ts = LCTransformSet(k, transfn);
     }
 
     if (vm.count("daemon")) {
@@ -619,22 +646,26 @@ int main(int argc, const char *argv[]) {
     } else { // end if daemon
       ofstream fout(vecoutfn);
       if (vm.count("batch")) {
-        vector<string> files;
+          cout << "batch." << endl;
+          vector<string> files;
         if (vm.count("list")) {
           // parse all files in the list.
           string listfn = vm["list"].as<string>();
-          ifstream listfin(listfn);
+            cout << "LIST" << endl;
+            ifstream listfin(listfn);
           string line;
           while (getline(listfin, line))
             files.push_back(line);
           listfin.close();
         } else {
           // parse all files in the folder.
-          files = loadFolder(srcfolder, prefix);
+            cout << "nonLIST." << endl;
+            files = loadFolder(srcfolder, prefix);
         }
 
         for (auto &s : files) {
-          classify(kd, ec, srcfolder, desfolder, k, pca, s, gc, coregc, fout,
+            cout << "classify" << endl;
+            classify(kd, ec, srcfolder, desfolder, k, pca, s, gc, coregc, fout,
                    ts, vm);
         }
       } else {
@@ -721,7 +752,8 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 
   if (!feat_vec_collected) {
     // Export rect from core_gc viewlets.
-    auto goodRes = iw.getGoodResults();
+      cout << "NO feat_vec_collected." << endl;
+      auto goodRes = iw.getGoodResults();
     fout << s << endl;
     for (const Result &r : goodRes) {
       fout << r.category << "\t" << r.score << "\t";
@@ -773,6 +805,7 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
     imwrite(desfolder + "inferred_" + s, inferred_out);
   } else if (feat_vec_collected) {
     // Export feature vectors from core_gc viewlets.
+      cout << "feat_vec_collected." << endl;
     Mat out = mat.clone();
     vector<vector<Result>> res_decks = iw.getMatchedResults(core_gc);
     bool viewlet_detected = false;

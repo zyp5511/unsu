@@ -3,6 +3,9 @@
 FeatureLoader::FeatureLoader(void) {}
 
 FeatureLoader::~FeatureLoader(void) {}
+// loadTable by file name into Eigen Matrix
+//input fn: filename
+//input feavec: Egien matrix
 void FeatureLoader::loadTab2Eigen(string fn, MatrixXf &feavec) {
   clock_t overall_start = clock();
   int mr, mc;
@@ -32,8 +35,10 @@ void FeatureLoader::loadTab2Eigen(string fn, MatrixXf &feavec) {
 }
 
 Mat FeatureLoader::loadTab(string fn) {
+  // fn : filename
+
   clock_t overall_start = clock();
-  int mr, mc;
+  int mr, mc; // mr matrix row, mc matix col
   FILE *fp;
   fp = fopen(fn.c_str(), "r");
   // ifstream fin(fn);

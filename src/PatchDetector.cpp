@@ -9,10 +9,12 @@
 #include "PatchDetector.h"
 
 void PatchDetector::detect(Feature &feature) {
+  cout << "PD.detect" << endl;
   detect(feature.vec, feature.res.category, feature.res.score,
          feature.res.accepted);
 }
 void PatchDetector::detect(const vector<float> &vec, int &c, float &score,
                            bool &accepted) {
+  cout << "Not implemented." << endl;
   cerr << "Not implemented." << endl;
 }

@@ -1,5 +1,5 @@
 #include "FLANNDetector.h"
-
+// fast library nearest nebierhood 
 void FLANNDetector::init() { vlen = 4480; }
 
 FLANNDetector::FLANNDetector(void) { init(); }

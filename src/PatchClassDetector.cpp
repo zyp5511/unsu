@@ -17,6 +17,7 @@ PatchClassDetector::~PatchClassDetector() {
 
 void PatchClassDetector::detect(const vector<float> &fea, int &c, float &score,
                                 bool &accepted) {
+  cout << "PCDDDDDD" << endl;
   classify(fea, c, score);
   if (c >= 0 && !gamecard.empty() && gamecard[c])
     accepted = true;

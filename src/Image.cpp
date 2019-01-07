@@ -29,7 +29,7 @@ void ImageWrapper::collectResult(const PCA &pca, bool with_fea_vec) {
     Mat temp = ic->all_mats[i].clone(); // TODO: Is clone necessary?
     Feature fea(temp, pca);
     pd->detect(fea);
-    Result tempres = fea.getResult();
+    Result tempres = fea.getResult();//returh HOG?
     tempres.rect = ic->all_rects[i];
     if (with_fea_vec) {
       tempres.feature = Mat(fea.vec);
