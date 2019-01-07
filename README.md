@@ -15,9 +15,10 @@ The result of KNN detector will be stored into a file called scan_sample_800px.t
 ### Package and Dependency
 The code is running under Ubuntu 18.04. 
 The package required for running this code is:
-1.OpenCV: 3.4.1, follow the step on https://www.pyimagesearch.com/2018/05/28/ubuntu-18-04-how-to-install-opencv/
-2.Egien 3.3.7
-3.TBB
+
+1. OpenCV: 3.4.1, follow the step on https://www.pyimagesearch.com/2018/05/28/ubuntu-18-04-how-to-install-opencv/
+2. Egien 3.3.7
+3. TBB
 
 ### Build
 
